@@ -57,6 +57,12 @@ class SuffixTree:
                 leafes = self.get_leafes_below(newnode)
                 res.extend(leafes)
         return res
+    
+    def nodes_below(self, node): #Ex1a)
+        id_nodes = list(self.nodes[node][1].values())
+        for i in id_nodes:
+            id_nodes.extend(list(self.nodes[i][1].values()))
+        return id_nodes
 
 def test():
     seq = "TACTA"
@@ -65,6 +71,7 @@ def test():
     st.print_tree()
     print (st.find_pattern("TA"))
     print (st.find_pattern("ACG"))
+    print(st.nodes_below(2))
 
 def test2():
     seq = "TACTA"
