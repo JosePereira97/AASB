@@ -59,10 +59,65 @@ class SuffixTree:
         return res
     
     def nodes_below(self, node): #Ex1a)
-        id_nodes = list(self.nodes[node][1].values())
-        for i in id_nodes:
-            id_nodes.extend(list(self.nodes[i][1].values()))
-        return id_nodes
+        if node >= len(self.nodes):
+            return None
+        else:
+            id_nodes = list(self.nodes[node][1].values())
+            for i in id_nodes:
+                id_nodes.extend(list(self.nodes[i][1].values()))
+            return id_nodes
+
+    def matches_prefix(self, prefix):
+
+        def function(i):
+            lista = []
+            if i > 0: #a function ele vai correr de volta a Root e reconstruir as strings a partir das leafs
+                for n, f in self.nodes.items():
+                    for m in list(f[1].values()):
+                        if i == m:
+                            for key, value in f[1].items():
+                                if i == value:
+                                    lista.extend(key)
+                                    x = function(n)
+                                    lista.extend(x)
+            else:
+                for n, f in self.nodes.items():
+                    for m in list(f[1].values()):
+                        if i == m:
+                            for key, value in f[1].items():
+                                if i == value:
+                                    lista.append(key)
+            
+            return lista
+
+        ns = SuffixTree.find_pattern(self, prefix)
+        if ns == None or ns == []: #vai vere se existem leaf belows com o prefix
+            return None
+        else:
+            matches = []
+            matches.append(prefix) #vai adicionar o prefix pois é match
+            for i in ns:
+                for key, value in self.nodes.items(): #vamos a todos os items do dicionário
+                    if i == value[0]: #para encontrar o value que obtivemos das leafs
+                        x = function(key) #vamos correr a fuction
+                        x.reverse() #vamos reverter a list
+                        del(x[-1]) #retira-se o dólar
+                        string = ''.join(x) #transforma em string
+                        matches.append(string) # e adicionas a string a lista
+            matches = sorted(matches, key =len, reverse = True) # vamos fazer sorted da lista
+            matchesfinal = matches.copy() #vamos fazer uma copy do valore da lista para n alterar mos a matches
+            for i in range(len(matches)): #vamos correr todos os valores da lista match
+                m = len(matches[i])
+                f = 1
+                while m > len(prefix) + 1: # e com este ciclo while vamos cortar letra a letra das seq do match
+                    matchesfinal.append(matches[i][:-f])
+                    m = m -1
+                    f = f + 1
+            return(list(dict.fromkeys(matchesfinal))) #remove-mos os duplicados
+
+
+
+
 
 def test():
     seq = "TACTA"
@@ -74,10 +129,11 @@ def test():
     print(st.nodes_below(2))
 
 def test2():
-    seq = "TACTA"
+    seq = "TACTAGHF"
     st = SuffixTree()
     st.suffix_tree_from_seq(seq)
     print (st.find_pattern("TA"))
+    print(st.matches_prefix('TA'))
 
 test()
 print()
