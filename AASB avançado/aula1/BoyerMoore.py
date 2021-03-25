@@ -13,22 +13,22 @@ class BoyerMoore:
         
     def process_bcr(self):
         self.occ = {}
-        for c in self.alphabet:
+        for c in self.alphabet: #todos os valores do alfabeto ficam com -1 no dicionário
             self.occ[c] = -1
-        for i in range(len(self.pattern)):
+        for i in range(len(self.pattern)): #muda a posição do dicionário para das letras do pattern para a ultima
             k = self.pattern[i]
             self.occ[k] = i
         print(self.occ)
 
             
     def process_gsr(self):
-        self.f = [0] * (len(self.pattern) + 1)
+        self.f = [0] * (len(self.pattern) + 1) #uma lista de 0 igual ao comprimento do padrão
         self.s = [0] * (len(self.pattern) + 1)
         i = len(self.pattern)
         j = len(self.pattern) + 1
         self.f[i] = j
         while i > 0:
-            while j <= len(self.pattern) and self.pattern[i - 1] != self.pattern[j - 1]:
+            while j <= len(self.pattern) and self.pattern[i - 1] != self.pattern[j - 1]: #vai cirar a lista e de quantas casas pode avançar errando em certas posições do padrão
                 if self.s[j] == 0:
                     self.s[j] = j - i
                 j = self.f[j]
@@ -58,11 +58,7 @@ class BoyerMoore:
                 i = i + self.s[0]
             else:
                 c = text[j + i]
-                print(self.s[j+1])
-                print(self.occ[c])
-                print(max(self.s[j + 1], j - self.occ[c]))
-                i += max(self.s[j + 1], j - self.occ[c])
-                print(i)
+                i += max(self.s[j + 1], j - self.occ[c]) #avançar no texto dependendo onde a reconstrução do padrão parou
 
 
 

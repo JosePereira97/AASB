@@ -5,6 +5,7 @@ class SuffixTree:
     def __init__(self):
         self.nodes = { 0:(-1,{}) } # root node
         self.num = 0
+        self.seq = ''
     
     def print_tree(self):
         for k in self.nodes.keys():
@@ -31,6 +32,7 @@ class SuffixTree:
             pos += 1
     
     def suffix_tree_from_seq(self, text):
+        self.seq = text
         t = text+"$"
         for i in range(len(t)):
             self.add_suffix(t[i:], i)
@@ -68,6 +70,7 @@ class SuffixTree:
             return id_nodes
 
     def matches_prefix(self, prefix):
+        print(self.seq)
 
         def function(i):
             lista = []
@@ -91,6 +94,7 @@ class SuffixTree:
             return lista
 
         ns = SuffixTree.find_pattern(self, prefix)
+
         if ns == None or ns == []: #vai vere se existem leaf belows com o prefix
             return None
         else:
@@ -115,6 +119,8 @@ class SuffixTree:
                     f = f + 1
             return(list(dict.fromkeys(matchesfinal))) #remove-mos os duplicados
 
+            
+
 
 
 
@@ -129,7 +135,7 @@ def test():
     print(st.nodes_below(2))
 
 def test2():
-    seq = "TACTAGHF"
+    seq = "TACTA"
     st = SuffixTree()
     st.suffix_tree_from_seq(seq)
     print (st.find_pattern("TA"))

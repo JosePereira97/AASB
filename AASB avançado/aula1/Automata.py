@@ -49,10 +49,10 @@ def overlap(s1, s2):
     return 0
                
 def test():
-    auto = Automata("AC", "ACA")
+    auto = Automata("ACD", "ACAD")
     auto.printAutomata()
     print (auto.applySeq("CACAACAA"))
-    print (auto.occurencesPattern("CACAACAA"))
+    print (auto.occurencesPattern("CACADACAA"))
 
 test()
 
