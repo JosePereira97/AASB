@@ -197,9 +197,9 @@ class MotifFinding:
         improve = True
         while improve:
             #Passo 2: selecionar uma das sequência aleatoriamente
-            seq_idx = self.seqs(randint(0, len(self.seqs) - 1))
+            seq_idx = self.seqs[randint(0, len(self.seqs) - 1)]
             #Passo 3: criar um perfil que não contenha a sequência aleatória
-            seq = self.seqs.pop(seq_idx) #Removemos a sequência da lista
+            seq = self.seqs().pop(seq_idx) #Removemos a sequência da lista
             spartial = s.copy().remove(seq_idx) #Removemos a referência do vetor de posições iniciais
             motif = self.createMotifFromIndexes(spartial) #Criar o perfil sem a sequência removida
             motif.createPWM()
@@ -229,7 +229,7 @@ class MotifFinding:
 
 def test1():  
     sm = MotifFinding()
-    sm.readFile("exemploMotifs.txt", 'dna')
+    sm.readFile('C:/Users/josep/OneDrive/Documentos/GitHub/AASB/AASB_avançado/aula5/exemploMotifs.txt', 'dna')
     sol = [25,20,2,55,59]
     sa = sm.score(sol)
     print(sa)
@@ -260,7 +260,7 @@ def test2():
 
 def test3():
     mf = MotifFinding()
-    mf.readFile("exemploMotifs.txt","dna")
+    mf.readFile("C:/Users/josep/OneDrive/Documentos/GitHub/AASB/AASB_avançado/aula5/exemploMotifs.txt","dna")
     print ("Branch and Bound:")
     sol = mf.branchAndBound()
     print ("Solution: " , sol)
@@ -269,7 +269,7 @@ def test3():
 
 def test4():
     mf = MotifFinding()
-    mf.readFile("exemploMotifs.txt","dna")
+    mf.readFile("C:/Users/josep/OneDrive/Documentos/GitHub/AASB/AASB_avançado/aula5/exemploMotifs.txt","dna")
     print("Heuristic stochastic")
     sol = mf.heuristicStochastic()
     print ("Solution: " , sol)
