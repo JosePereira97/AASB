@@ -3,7 +3,7 @@
 @author: miguelrocha
 """
 
-def createMatZeros (nl, nc): #função que vai cirar uma matriz de 0, com o temanho de nl * nc dependendo dos valores dados nestas variáveis 
+def createMatZeros (nl, nc): #função que vai criar uma matriz de 0, com o temanho de nl * nc dependendo dos valores dados nestas variáveis 
     res = [ ] 
     for i in range(0, nl):
         res.append([0]*nc)

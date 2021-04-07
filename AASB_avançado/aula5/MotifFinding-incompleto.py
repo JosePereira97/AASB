@@ -30,7 +30,7 @@ class MotifFinding:
         
     def createMotifFromIndexes(self, indexes): #recebe uma lista de númereos sendo esta composta pelo número onde cada seq vai começar a contar o motif()
         pseqs = []
-        for i,ind in enumerate(indexes): 
+        for i,ind in enumerate(indexes):
             pseqs.append( MySeq(self.seqs[i][ind:(ind+self.motifSize)], self.seqs[i].tipo) ) #vai adicionar a pseqs (uma sequência i  onde começa o motif e onde vai acabar) mais o tipo de seq que é
         return MyMotifs(pseqs) #vai correr os Mymotifs com a lista de motifs
         
@@ -64,7 +64,6 @@ class MotifFinding:
         return score     
        
     # EXHAUSTIVE SEARCH
-       
     def nextSol (self, s):
         nextS = [0]*len(s) #vai criar a lista s com o em toda ela lista que vai conter em que posição das seqs está a começar a formação dos motifs
         pos = len(s) - 1   #pos vai ser igual ao comprimento da lista s -1
@@ -187,37 +186,40 @@ class MotifFinding:
 
     # Gibbs sampling 
 
-    def gibbs (self):
+    def gibbs (self, iterations = 1000):
+
         from random import randint
-        s = [0] * len(self.seqs) #criar a lista s de posições iniciais
+        s = [] #criar a lista s de posições iniciais
         #Passo 1
         for i in range(len(self.seqs)):
-            s[i] = randint(0, self.seqSize(i) - self.motifSize) #escolher um numero random de start para cada sequência
+             s.append(randint(0, len(self.seqs[i]) - self.motifSize -1)) #escolher um numero random de start para cada sequência
         melhorscore = self.score(s) #calcular o score de s
-        improve = True
-        while improve:
+        bests = list(s)
+        for it in range(iterations):
             #Passo 2: selecionar uma das sequência aleatoriamente
             seq_idx = randint(0, len(self.seqs) - 1)
             #Passo 3: criar um perfil que não contenha a sequência aleatória
-            seq = self.seqs.pop(seq_idx) #Removemos a sequência da lista
-            spartial = s.copy().remove(seq_idx) #Removemos a referência do vetor de posições iniciais !deve faltar index lá dentro se não não vai funcionar
-            motif = self.createMotifFromIndexes(spartial) #Criar o perfil sem a sequência removida
+            seq = self.seqs[seq_idx] #indicar qual a seq que vai remover
+            s.pop(seq_idx) #vai remover a posição inicial correspondente a seq escolhida para ser removida
+            removed = self.seqs.pop(seq_idx) #vai dar pop sa seq na lista e guardar no removed
+            motif = self.createMotifFromIndexes(s) #Criar o perfil sem a sequência removida
             motif.createPWM()
-            s[seq_idx] = motif.mostProbableSeq(seq) #Melhor posição inicial da sequência considerando o perfil
-            self.seqs.insert(seq_idx, seq)
-            #Passo 4
-            scr = self.score(s)
-            if scr > melhorscore: 
-                melhorscore = scr
-            else: 
-                improve = False
-        return s
+            self.seqs.insert(seq_idx, removed) #vai voltar a adicionar a seq removida a lista de seqs na posição seq_idx
+            r = motif.probAllPositions(seq) #vai calcular a probabilidade de todas as subseqs possiveis na seq removida
+            pos = self.roulette(r) #vai fazer o roulette da lista e escolher um dos valores com valores maior que 0, devolvendo a posição onde se iniciou o motif
+            s.insert(seq_idx, pos) #vai adicionar o valor da pos do motif ao s na posição seq_idx
+            score = self.score(s) #vai calcular o score do novo s
+            if score > melhorscore: #vai ver se este é maior que o melhor scor se for, o melhorscore passa a ser o score e a bests passa a ser a s
+                melhorscore = score
+                bests = list(s)
+        return bests #vai dar return do s
 
-    def roulette(self, f):
+
+    def roulette(self, f): #se o professor perguntar pedir a ele para explicar
         from random import random
         tot = 0.0
         for x in f: tot += (0.01+x)
-        val = random()* tot
+        val = random()* tot #vai multiplicar total por um valor random entre [0 e 1[ , e dizer que isto n faz sentido
         acum = 0.0
         ind = 0
         while acum < val:
@@ -264,6 +266,12 @@ class MotifFinding:
                 maxind = k
         return maxind
 
+    def probAllPositionsEX(self, seq, pwm): #este em vez de calcular a probabilidade de acontecer devolve uma lista com as probabilidades de acontecer em cada letra da seq
+        res = []
+        for k in range(len(seq)-self.motifSize+1):
+            res.append(self.probabSeqEX(seq, pwm))
+        return res
+
     def heuristicStochasticex1_al5(self):
         from random import randint
 
@@ -279,7 +287,7 @@ class MotifFinding:
             newPWM = [] #vai contruir a matriz PWM sem nenhum numero negativo já com as pseudo contagens
             for k in range(len(motif.pwm)):
                 linhas = []
-                for t in range(len(motif.pwm)):
+                for t in range(len(motif.pwm[0])):
                     linhas.append(motif.pwm[k][t] + 0.1)
                 newPWM.append(linhas)  
             #Passo 3
@@ -291,6 +299,38 @@ class MotifFinding:
             else: 
                 improve = False
         return s
+
+    def gibbsEX (self, iterations = 1000):
+
+        from random import randint
+        s = [] 
+        for i in range(len(self.seqs)):
+             s.append(randint(0, len(self.seqs[i]) - self.motifSize -1))
+        melhorscore = self.scoreEX(s)
+        bests = list(s)
+        for it in range(iterations):
+            seq_idx = randint(0, len(self.seqs) - 1)
+            seq = self.seqs[seq_idx]
+            s.pop(seq_idx)
+            removed = self.seqs.pop(seq_idx)
+            motif = self.createMotifFromIndexes(s)
+            motif.createPWM()
+            newPWM = [] #vai contruir a matriz PWM sem nenhum numero negativo já com as pseudo contagens
+            for k in range(len(motif.pwm)):
+                linhas = []
+                for t in range(len(motif.pwm[0])):
+                    linhas.append(motif.pwm[k][t] + 0.1)
+                newPWM.append(linhas)
+            self.seqs.insert(seq_idx, removed) #vai voltar a adicionar a seq removida a lista de seqs na posição seq_idx
+            r = self.probAllPositionsEX(seq, newPWM) #vai calcular a probabilidade de todas as subseqs possiveis na seq removida
+            pos = self.roulette(r) #vai fazer o roulette da lista e escolher um dos valores com valores maior que 0, devolvendo a posição onde se iniciou o motif
+            s.insert(seq_idx, pos) #vai adicionar o valor da pos do motif ao s na posição seq_idx
+            score = self.scoreEX(s) #vai calcular o score do novo s
+            if score > melhorscore: #vai ver se este é maior que o melhor scor se for, o melhorscore passa a ser o score e a bests passa a ser a s
+                melhorscore = score
+                bests = list(s)
+        return bests #vai dar return do s
+
 # tests
 
 def test1():  
@@ -349,12 +389,13 @@ def test4():
 def testEX():
     mf = MotifFinding()
     mf.readFile("C:/Users/josep/OneDrive/Documentos/GitHub/AASB/AASB_avançado/aula5/exemploMotifs.txt","dna")
-    print("Heuristic stochastic")
-    sol = mf.heuristicStochastic()
-    print ("Solution: " , sol)
-    print ("Score:" , mf.score(sol))
-    print ("Score mult:" , mf.scoreMult(sol))
-    print("Consensus:", mf.createMotifFromIndexes(sol).consensus())
+    print("Heuristic stochasticEX")
+    sol = mf.heuristicStochasticex1_al5()
+    print ("SolutionEX: " , sol)
+    print ("ScoreEX:" , mf.scoreEX(sol))
+    print("ConsensusEX:", mf.createMotifFromIndexes(sol).consensus())
+    sol2 = mf.gibbsEX()
+    print ("Score:" , mf.scoreEX(sol2))
 
 test1()
 print('-------------------')
