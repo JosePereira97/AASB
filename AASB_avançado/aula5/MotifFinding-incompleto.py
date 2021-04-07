@@ -6,33 +6,33 @@ from MyMotifs import MyMotifs
 class MotifFinding:
     
     def __init__(self, size = 8, seqs = None):
-        self.motifSize = size
-        if (seqs != None):
+        self.motifSize = size #vai ver qual é o tamanho dos motifs a procurar se n for nenhum escolhido é 8
+        if (seqs != None): #se tivermos seqs o self.seqs vai ser seqs e o self.alphabet vai ser o alfabeto
             self.seqs = seqs
             self.alphabet = seqs[0].alfabeto()
         else:
-            self.seqs = []
+            self.seqs = [] #se for None vamos dizer que o self.seqs vai ser uma lista vazia
                     
     def __len__ (self):
-        return len(self.seqs)
+        return len(self.seqs) #dá return ao nûmero de elementos na lista self.seqs 
     
     def __getitem__(self, n):
-        return self.seqs[n]
+        return self.seqs[n] #dá return á string da primeira seq em self.seqs
     
     def seqSize (self, i):
-        return len(self.seqs[i])
+        return len(self.seqs[i]) #dá return ao comprimento da sequêndia i na lista self.seqs
     
-    def readFile(self, fic, t):
+    def readFile(self, fic, t): #vai ler um ficheiro e adiciona-lo á nossa lista self.seqs, sendo o t o tipo de seq
         for s in open(fic, "r"):
             self.seqs.append(MySeq(s.strip().upper(),t))
         self.alphabet = self.seqs[0].alfabeto()
         
         
-    def createMotifFromIndexes(self, indexes):
+    def createMotifFromIndexes(self, indexes): #recebe uma lista de númereos sendo esta composta pelo número onde cada seq vai começar a contar o motif()
         pseqs = []
-        for i,ind in enumerate(indexes):
-            pseqs.append( MySeq(self.seqs[i][ind:(ind+self.motifSize)], self.seqs[i].tipo) )
-        return MyMotifs(pseqs)
+        for i,ind in enumerate(indexes): 
+            pseqs.append( MySeq(self.seqs[i][ind:(ind+self.motifSize)], self.seqs[i].tipo) ) #vai adicionar a pseqs (uma sequência i  onde começa o motif e onde vai acabar) mais o tipo de seq que é
+        return MyMotifs(pseqs) #vai correr os Mymotifs com a lista de motifs
         
         
     # SCORES
@@ -40,17 +40,17 @@ class MotifFinding:
     def score(self, s):
         score = 0
         motif = self.createMotifFromIndexes(s)
-        motif.doCounts()
-        mat = motif.counts
-        for j in range(len(mat[0])):
-            maxcol = mat[0][j]
-            for  i in range(1, len(mat)):
+        motif.doCounts() #vai cirar a matriz de contagens
+        mat = motif.counts #vai tranporta le para aqui
+        for j in range(len(mat[0])): #vai correr as colunas da matriz
+            maxcol = mat[0][j] #vai dizer que o maxcolun vai ser igual ao primeiro elemento da coluna
+            for  i in range(1, len(mat)): #depois vai começar no segundo elemento da coluna e vai comparar com todos os elementos da coluna para ver qual é o maior
                 if mat[i][j] > maxcol: 
                     maxcol = mat[i][j]
-            score += maxcol
+            score += maxcol #vai adionar esse valor a coluna
         return score
    
-    def scoreMult(self, s):
+    def scoreMult(self, s): #faz o mesmo de cima mas é com probabilidades e o score vem em probabilidade é por multiplicação
         score = 1.0
         motif = self.createMotifFromIndexes(s)
         motif.createPWM()
@@ -66,52 +66,52 @@ class MotifFinding:
     # EXHAUSTIVE SEARCH
        
     def nextSol (self, s):
-        nextS = [0]*len(s)
-        pos = len(s) - 1     
+        nextS = [0]*len(s) #vai criar a lista s com o em toda ela lista que vai conter em que posição das seqs está a começar a formação dos motifs
+        pos = len(s) - 1   #pos vai ser igual ao comprimento da lista s -1
         while pos >=0 and s[pos] == self.seqSize(pos) - self.motifSize:
             pos -= 1
         if (pos < 0): 
-            nextS = None
+            nextS = None #quando NextS = None vamos ter a finalização e vamos ter como resultado as posições nas seq onde se encontra os motifs
         else:
-            for i in range(pos): 
+            for i in range(pos): #vai igualar a S á next s mais vai incrementar a ultima elemento de s mais 1 
                 nextS[i] = s[i]
             nextS[pos] = s[pos]+1
-            for i in range(pos+1, len(s)):
+            for i in range(pos+1, len(s)): # vai acrescentar um 0 a lista s se esta não for composta por valores de s
                 nextS[i] = 0
         return nextS
         
     def exhaustiveSearch(self):
         melhorScore = -1
         res = []
-        s = [0]* len(self.seqs)
+        s = [0]* len(self.seqs) #vai cirar a lista de 0 com o numero de seqs presentes na lista self.seqs
         while (s!= None):
-            sc = self.score(s)
-            if (sc > melhorScore):
+            sc = self.score(s) #vai calcular o score das posições
+            if (sc > melhorScore): #se esse score for maior do que o melhor score o melhor score passa a ser esse e a lista com as posições iniciais dos motifs passam a ser s
                 melhorScore = sc
                 res = s
-            s = self.nextSol(s)
+            s = self.nextSol(s) # o próximo s vai ser o nexts
         return res #O resultado são as posições inicais que vão maximizar o score
      
     # BRANCH AND BOUND     
      
     def nextVertex (self, s):
         res =  []
-        if len(s) < len(self.seqs): # internal node -> down one level
+        if len(s) < len(self.seqs): # internal node -> down one level #se o comprimento de len(s) for menor implica que n está a abranjer as seqs todas logo ira dar append a mais um 0 e vai dar essa s como o nexts
             for i in range(len(s)): 
                 res.append(s[i])
             res.append(0)
         else: # bypass
             pos = len(s)-1 
-            while pos >=0 and s[pos] == self.seqSize(pos) - self.motifSize:
-                pos -= 1
-            if pos < 0: res = None # last solution
+            while pos >=0 and s[pos] == self.seqSize(pos) - self.motifSize: #vai ver se a ultima seq já chegou ao fim e assim sucessivamente
+                pos -= 1 
+            if pos < 0: res = None # last solution #vai acabar o ciclo, implica que chegou a ultima hipotese
             else:
-                for i in range(pos): res.append(s[i])
+                for i in range(pos): res.append(s[i]) #vai criar a próxima lista s e vai adicionar ao ultimo valor +1
                 res.append(s[pos]+1)
         return res
     
     
-    def bypass (self, s):
+    def bypass (self, s): #vai ver se já chegou as ultimas letras de seq, se chegou vai alteralas para 0 e vai acrescentalas
         res =  []
         pos = len(s) -1
         while pos >=0 and s[pos] == self.seqSize(pos) - self.motifSize:
@@ -126,18 +126,18 @@ class MotifFinding:
         melhorScore = -1
         melhorMotif = None
         size = len(self.seqs)
-        s = [0]*size
-        while s != None:
-            if len(s) < size:
+        s = [0]*size #vai criar a mesma lista s
+        while s != None: #enquanto o s não for None ele vai sempre continuar
+            if len(s) < size: #se o len s for menor implica que n está a abranjer todas as seqs, log vai ao bypass, se o optimscore for mais pequeno que o melhorscore, não vamos incrementar na folha mas sim vamos incrementar nos nódulas dando skip a certas folhas, onde vamos saber que o score vai ser menor
                 optimScore = self.score(s) + (size-len(s)) * self.motifSize
                 if optimScore < melhorScore: s = self.bypass(s)
                 else: s = self.nextVertex(s)
             else:
-                sc = self.score(s)
-                if sc > melhorScore:
+                sc = self.score(s) #calcular o score dos motifs
+                if sc > melhorScore: #se o scor for maior que o mais maior vai alterar o melhor score e o melhorMotif
                     melhorScore = sc
                     melhorMotif  = s
-                s = self.nextVertex(s)
+                s = self.nextVertex(s) #e vai fazer que o s seja o Nexts
         return melhorMotif
 
     # Consensus (heuristic)
@@ -145,8 +145,8 @@ class MotifFinding:
     def heuristicConsensus(self):
         """ Procura as posições para o motif nas duas primeiras sequências """ 
         mf = MotifFinding(self.motifSize, self.seqs[:2]) #Procura exaustiva das duas primeiras sequências
-        s = mf.exhaustiveSearch() #Exemplo: (1, 3) -> 1 corresponde à primeira posição do motif na sequência e o 3 a segunda posição
-        for a in range(2, len(self.seqs)): #Avalia a melhor posição para cada uma das sequências, guardando-a (maximiza o score)
+        s = mf.exhaustiveSearch() #vai procurar a posição inical entre essas 2 seqs com o score ideal
+        for a in range(2, len(self.seqs)): #Avalia a melhor posição para cada uma das outras sequências, guardando-a (maximiza o score)
             s.append(0)
             melhorScore = -1 
             melhorPosition = 0
@@ -166,20 +166,20 @@ class MotifFinding:
         s = [0] * len(self.seqs) #Gerar um vetor aleatória com o mesmo tamnho do número de sequências
         #Passo 1: inicia todas as posições com valores aleatórios 
         for i in range(len(self.seqs)):
-            s[i] = randint(0, self.seqSize(i) - self.motifSize) #Randint (A, B) retorna um valor x que é: A <= x <= B
+            s[i] = randint(0, self.seqSize(i) - self.motifSize) #vai escolher um valor random para ser o valor inicial de cada seq
         #Passo 2
         melhorscore = self.score(s)
         improve = True
         while improve:
             motif = self.createMotifFromIndexes(s) #Constrói o perfil com base nas posições iniciais s
-            motif.createPWM()
+            motif.createPWM() #vai criar a matriz PWM  
             #Passo 3
             for i in range(len(self.seqs)): #Avalia a melhor posição inicial para cada sequência com base no perfil
-                s[i] = motif.mostProbableSeq(self.seqs[i])
+                s[i] = motif.mostProbableSeq(self.seqs[i]) #vai ver em cada seq de self.seqs, qual é a subseq nelas que é mais provável de acontecer no quandro PWM
             #Passo 4
             #Verifica se houve alguma melhoria
-            scr = self.score(s)
-            if scr > melhorscore:
+            scr = self.score(s) #vai calcular o score
+            if scr > melhorscore: #se o score melhorou volta a repetir o processo se não acaba e devolve as melhores posições das subseqs
                 melhorscore = scr
             else: 
                 improve = False
@@ -189,18 +189,18 @@ class MotifFinding:
 
     def gibbs (self):
         from random import randint
-        s = [0] * len(self.seqs)
+        s = [0] * len(self.seqs) #criar a lista s de posições iniciais
         #Passo 1
         for i in range(len(self.seqs)):
-            s[i] = randint(0, self.seqSize(i) - self.motifSize)
-        melhorscore = self.score(s)
+            s[i] = randint(0, self.seqSize(i) - self.motifSize) #escolher um numero random de start para cada sequência
+        melhorscore = self.score(s) #calcular o score de s
         improve = True
         while improve:
             #Passo 2: selecionar uma das sequência aleatoriamente
-            seq_idx = self.seqs[randint(0, len(self.seqs) - 1)]
+            seq_idx = randint(0, len(self.seqs) - 1)
             #Passo 3: criar um perfil que não contenha a sequência aleatória
-            seq = self.seqs().pop(seq_idx) #Removemos a sequência da lista
-            spartial = s.copy().remove(seq_idx) #Removemos a referência do vetor de posições iniciais
+            seq = self.seqs.pop(seq_idx) #Removemos a sequência da lista
+            spartial = s.copy().remove(seq_idx) #Removemos a referência do vetor de posições iniciais !deve faltar index lá dentro se não não vai funcionar
             motif = self.createMotifFromIndexes(spartial) #Criar o perfil sem a sequência removida
             motif.createPWM()
             s[seq_idx] = motif.mostProbableSeq(seq) #Melhor posição inicial da sequência considerando o perfil
@@ -225,6 +225,72 @@ class MotifFinding:
             ind += 1
         return ind-1
 
+
+# Exercícos da aula já com pseudo contagens ----------------------------------------------------------------------------
+
+    def scoreEX(self, m): #responsável por calcular a contagem com as pseudo contagens
+            score = 0
+            motif = self.createMotifFromIndexes(m)
+            motif.doCounts()
+            mat = []
+            for i in range(len(motif.counts)):
+                linha = []
+                for j in range(len(motif.counts[i])):
+                    linha.append(motif.counts[i][j] + 1)
+                mat.append(linha)
+            for k in range(len(mat[0])):
+                maxcol = mat[0][k] 
+                for  f in range(1, len(mat)): 
+                    if mat[f][k] > maxcol: 
+                        maxcol = mat[f][k]
+                score += maxcol 
+            return score
+
+    def probabSeqEX (self, seq, pwm): #vai calcular a probabilidade de a seq fazer parte deste quadro sendo que todos os elementos do quadro n tem valores negativos!
+
+        res = 1.0
+        for i in range(self.motifSize):
+            lin = self.alphabet.index(seq[i])
+            res *= pwm[lin][i]
+        return res
+    
+    def mostProbableSeqEX(self, seq, pwm): #vai ver qual a posição inicial da subseq de uma seq de comprimento indefenido encaixa melhor no quandro de motifs das seqs
+        maximo = -1.0
+        maxind = -1
+        for k in range(len(seq)-self.motifSize):
+            p = self.probabSeqEX(seq[k:k+ self.motifSize], pwm)
+            if(p > maximo):
+                maximo = p
+                maxind = k
+        return maxind
+
+    def heuristicStochasticex1_al5(self):
+        from random import randint
+
+        s = [0] * len(self.seqs)
+        for i in range(len(self.seqs)):
+            s[i] = randint(0, self.seqSize(i) - self.motifSize)
+        #Passo 2
+        melhorscore = self.scoreEX(s) #vai fazer o score consoante o novo score2 que não vai conter valores 0 já com as pseudos contagens
+        improve = True
+        while improve:
+            motif = self.createMotifFromIndexes(s)
+            motif.createPWM()
+            newPWM = [] #vai contruir a matriz PWM sem nenhum numero negativo já com as pseudo contagens
+            for k in range(len(motif.pwm)):
+                linhas = []
+                for t in range(len(motif.pwm)):
+                    linhas.append(motif.pwm[k][t] + 0.1)
+                newPWM.append(linhas)  
+            #Passo 3
+            for i in range(len(self.seqs)):
+                s[i] = self.mostProbableSeqEX(self.seqs[i], newPWM)
+            scr = self.scoreEX(s)
+            if scr > melhorscore:
+                melhorscore = scr
+            else: 
+                improve = False
+        return s
 # tests
 
 def test1():  
@@ -279,6 +345,17 @@ def test4():
     sol2 = mf.gibbs()
     print ("Score:" , mf.score(sol2))
     print ("Score mult:" , mf.scoreMult(sol2))
+
+def testEX():
+    mf = MotifFinding()
+    mf.readFile("C:/Users/josep/OneDrive/Documentos/GitHub/AASB/AASB_avançado/aula5/exemploMotifs.txt","dna")
+    print("Heuristic stochastic")
+    sol = mf.heuristicStochastic()
+    print ("Solution: " , sol)
+    print ("Score:" , mf.score(sol))
+    print ("Score mult:" , mf.scoreMult(sol))
+    print("Consensus:", mf.createMotifFromIndexes(sol).consensus())
+
 test1()
 print('-------------------')
 test2()
@@ -286,3 +363,5 @@ print('-------------------')
 test3()
 print('-------------------')
 test4()
+print('-------------------')
+testEX()
