@@ -269,7 +269,7 @@ class MotifFinding:
     def probAllPositionsEX(self, seq, pwm): #este em vez de calcular a probabilidade de acontecer devolve uma lista com as probabilidades de acontecer em cada letra da seq
         res = []
         for k in range(len(seq)-self.motifSize+1):
-            res.append(self.probabSeqEX(seq, pwm))
+            res.append(self.probabSeqEX(seq[k:k +self.motifSize], pwm)) #código dos mais motifs está mal feito
         return res
 
     def heuristicStochasticex1_al5(self):
