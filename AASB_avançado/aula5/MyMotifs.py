@@ -72,10 +72,10 @@ class MyMotifs:
             res *= self.pwm[lin][i]
         return res
     
-    def probAllPositions(self, seq): #este em vez de calcular a probabilidade de acontecer devolve uma lista com as probabilidades de acontecer em cada letra da seq
+    def probAllPositions(self, seq): #este em vez de calcular a probabilidade de acontecer devolve uma lista com as probabilidades de acontecer em cada subseq da seq
         res = []
         for k in range(len(seq)-self.size+1):
-            res.append(self.probabSeq(seq))
+            res.append(self.probabSeq(seq[k:k+self.size])) #está aqui um erro perguntar ao prof dentro do parênteses tem que ser seq[k:k+self.size]
         return res
 
     def mostProbableSeq(self, seq): #vai ver qual a posição inicial da subseq de uma seq de comprimento indefenido encaixa melhor no quandro de motifs das seqs

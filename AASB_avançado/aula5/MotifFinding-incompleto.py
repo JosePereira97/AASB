@@ -217,8 +217,8 @@ class MotifFinding:
 
     def roulette(self, f): #se o professor perguntar pedir a ele para explicar
         from random import random
-        tot = 0.0
-        for x in f: tot += (0.01+x)
+        tot = 0.0 
+        for x in f: tot += (0.01 + x)
         val = random()* tot #vai multiplicar total por um valor random entre [0 e 1[ , e dizer que isto n faz sentido
         acum = 0.0
         ind = 0
@@ -288,7 +288,7 @@ class MotifFinding:
             for k in range(len(motif.pwm)):
                 linhas = []
                 for t in range(len(motif.pwm[0])):
-                    linhas.append(motif.pwm[k][t] + 0.1)
+                    linhas.append(motif.pwm[k][t] + 0.1) #alterar PWM
                 newPWM.append(linhas)  
             #Passo 3
             for i in range(len(self.seqs)):

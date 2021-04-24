@@ -3,13 +3,13 @@ from Popul import PopulInt, PopulReal
 from MotifFinding import MotifFinding
 from MyMotifs import MyMotifs
 
-def createMatZeros(nl, nc):
+def createMatZeros(nl, nc): #criar uma matriz de 0
     res = []
     for _ in range(0, nl):
         res.append([0]*nc)
     return res
 
-def printMat(mat):
+def printMat(mat): #vain dar print a uma matriz
     for i in range(0, len(mat)):
         for j in range(len(mat[i])):
             print(f"{mat[i][j]:.3f}", end=' ')

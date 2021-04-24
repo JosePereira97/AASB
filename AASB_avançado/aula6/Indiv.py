@@ -54,12 +54,12 @@ class Indiv:
     def getGenes(self):
         return self.genes
 
-    def initRandom(self, size):
+    def initRandom(self, size): #criar as seq de genes com 1 e 0 ou outros valores sendo lb ou ub*
         self.genes = []
         for _ in range(size):
             self.genes.append(randint(self.lb, self.ub))
 
-    def mutation(self): #São dependentes das representações
+    def mutation(self): #São dependentes das representações #vai causar mutações nessas secks
         s = len(self.genes)
         pos = randint(0, s-1)
         if self.genes[pos] == 0:
@@ -68,7 +68,7 @@ class Indiv:
             self.genes[pos] = 0
 
     def crossover(self, indiv2):
-        return self.one_pt_crossover(indiv2)
+        return self.one_pt_crossover(indiv2) #porque isto está aqui é igaula ao debaixo*
 
     def one_pt_crossover(self, indiv2): #Não são dependentes das representações
         offsp1 = []
@@ -86,7 +86,7 @@ class Indiv:
         return res1, res2
 
 
-class IndivInt (Indiv):
+class IndivInt (Indiv): #só com valores 0 e 1
 
     def __init__(self, size, genes=[], lb=0, ub=1):
         self.lb = lb
@@ -96,25 +96,25 @@ class IndivInt (Indiv):
         if not self.genes:
             self.initRandom(size)
 
-    def initRandom(self, size):
+    def initRandom(self, size): #criar seq random com um numero entre 0 ub, n entendo porque n é lb aqui
         self.genes = []
         for _ in range(size):
             self.genes.append(randint(0, self.ub))
 
-    def mutation(self):
+    def mutation(self): #vai criar uma unica mutação
         s = len(self.genes)
         pos = randint(0, s-1)
         self.genes[pos] = randint(0, self.ub)
 
 
-class IndivReal(Indiv):
+class IndivReal(Indiv): #tenho de ver a diferença entre Real e Int
 
     def initRandom(self, size):
         self.genes = []
         for _ in range(size):
             self.genes.append(random() * (self.ub * self.lb) + self.lb) 
     
-    def mutation(self):
+    def mutation(self): #vai ocorrer uma unica mutação
         s = len(self.genes)
         pos = randint(0, s-1)
         self.genes[pos] = random() * (self.ub * self.lb) + self.lb
