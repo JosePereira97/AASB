@@ -58,6 +58,10 @@ class MotifFinding:
             mat = motif.pwm
         else:
             mat = pwm
+
+
+
+            
         for j in range(len(mat[0])):
             maxcol = mat[0][j]
             for  i in range(1, len(mat)):
