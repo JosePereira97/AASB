@@ -1,35 +1,35 @@
 class MySeq:
 
-    def __init__(self, seq, tipo="dna"):
+    def __init__(self, seq, tipo="dna"): #função inicial da classe, guarda o tipo de seq e a seq em upper.
         self.seq = seq.upper()
         self.tipo = tipo
 
-    def __len__(self):
+    def __len__(self): #return ao comprimento da seq
         return len(self.seq)
 
-    def __getitem__(self, n):
+    def __getitem__(self, n): #devolve o aminiácido na posição n da seq
         return self.seq[n]
 
-    def __getslice__(self, i, j):
+    def __getslice__(self, i, j): #devolve a seq entre a posição i e j
         return self.seq[i:j]
 
-    def __str__(self):
+    def __str__(self): #devolve o tipo de seq e a seq a frente
         return self.tipo + ":" + self.seq
 
-    def printseq(self):
+    def printseq(self): #dá print da seq
         print(self.seq)
 
-    def alfabeto(self):
-        if (self.tipo == "dna"):
+    def alfabeto(self): #vai definiir o alfabeto consoante o tipo
+        if (self.tipo == "dna"): #alfabeto de DNA
             return "ACGT"
-        elif (self.tipo == "rna"):
+        elif (self.tipo == "rna"): #alfabeto de RNA
             return "ACGU"
-        elif (self.tipo == "protein"):
+        elif (self.tipo == "protein"): #alfabeto de preoteinas
             return "ACDEFGHIKLMNPQRSTVWY"
         else:
             return None
 
-    def valida(self):
+    def valida(self): #vai validar se a seq, para ver se esta corresponde ao tipo inserido na classe
         alf = self.alfabeto()
         res = True
         i = 0
@@ -40,7 +40,7 @@ class MySeq:
                 i += 1
         return res
 
-    def validaER(self):
+    def validaER(self): #vai validar mas com expressões regulares
         import re
         if (self.tipo == "dna"):
             if re.search("[^ACTGactg]", self.seq) != None:
@@ -60,13 +60,13 @@ class MySeq:
         else:
             return False
 
-    def transcricao(self):
+    def transcricao(self): #vai ocorrer a transcrição passar de uma seq de DNA para RNA
         if (self.tipo == "dna"):
             return MySeq(self.seq.upper().replace("T", "U"), "rna")
         else:
             return None
 
-    def compInverso(self):
+    def compInverso(self): #vai dar o complemento inverso da seq de DNA
         if (self.tipo != "dna"):
             return None
         comp = ""
@@ -81,7 +81,7 @@ class MySeq:
                 comp = "G" + comp
         return MySeq(comp)
 
-    def traduzSeq(self, iniPos=0):
+    def traduzSeq(self, iniPos=0): #vai ocorrer a trdução da seq de DNA para proteina começando a tradução na posição iniPos
         if (self.tipo != "dna"):
             return None
         seqM = self.seq.upper()
@@ -91,7 +91,7 @@ class MySeq:
             seqAA += self.traduzCodao(cod)
         return MySeq(seqAA, "protein")
 
-    def orfs(self):
+    def orfs(self): #vai fazer a tradução de todas as orfs possiveis numa seq de DNA e devolve uma lista com estas traduções
         if (self.tipo != "dna"):
             return None
         res = []
@@ -104,8 +104,8 @@ class MySeq:
         res.append(compinv.traduzSeq(2))
         return res
 
-    def traduzCodao(self, cod):
-        tc = {"GCT": "A", "GCC": "A", "GCA": "A", "GCC": "A", "TGT": "C", "TGC": "C",
+    def traduzCodao(self, cod): #função responsável por pegar num codão e traduzilo para um aminoácido
+        tc = {"GCT": "A", "GCC": "A", "GCA": "A", "TGT": "C", "TGC": "C",
               "GAT": "D", "GAC": "D", "GAA": "E", "GAG": "E", "TTT": "F", "TTC": "F",
               "GGT": "G", "GGC": "G", "GGA": "G", "GGG": "G", "CAT": "H", "CAC": "H",
               "ATA": "I", "ATT": "I", "ATC": "I",
@@ -127,7 +127,7 @@ class MySeq:
             aa = "X"  # errors marked with X
         return aa
 
-    def traduzCodaoER(self, cod):
+    def traduzCodaoER(self, cod): #transforma codão em aminoácido mas com expressões regulares
         import re
         if re.search("GC.", cod):
             aa = "A"
@@ -175,7 +175,7 @@ class MySeq:
             aa = None
         return aa
 
-    def maiorProteina(self):
+    def maiorProteina(self): #vai procurar a maior proteina presente numa seq proteica, sendo que uma proteina começa em M e acaba em _
         if (self.tipo != "protein"):
             return None
         seqAA = self.seq.upper()
@@ -191,7 +191,7 @@ class MySeq:
                     protAtual += aa
         return MySeq(maiorprot, "protein")
 
-    def maiorProteinaER(self):
+    def maiorProteinaER(self): #vai procurar a maior proteina mas em expressões regulares
         import re
         if (self.tipo != "protein"):
             return None
@@ -207,7 +207,7 @@ class MySeq:
                 sizem = s
         return MySeq(lprot, "protein")
 
-    def todasProteinas(self):
+    def todasProteinas(self): #vai realizar a construção de todas as proteinas
         if (self.tipo != "protein"):
             return None
         seqAA = self.seq.upper()
@@ -220,14 +220,14 @@ class MySeq:
                         proteinas.append(MySeq(p, "protein"))
                     protsAtuais = []
             else:
-                if aa == "M":
+                if aa == "M": #por cada M que encontrar vai inicializar uma nova proteina
                     protsAtuais.append("")
-                for i in range(len(protsAtuais)):
+                for i in range(len(protsAtuais)): #adicionar os aminoacidos as proteinas correspondentes
                     protsAtuais[i] += aa
 
         return proteinas
 
-    def maiorProteinaORFs(self):
+    def maiorProteinaORFs(self): #vai encontrar a maior proteina em todas as orfs
         if (self.tipo != "dna"):
             return None
         larg = MySeq("", "protein")

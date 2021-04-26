@@ -1,11 +1,11 @@
-def createMatZeros(nl, nc):
+def createMatZeros(nl, nc): #criar uma matriz de zeros
     res = []
     for _ in range(0, nl):
         res.append([0]*nc)
     return res
 
 
-def printMat(mat):
+def printMat(mat): #print a cada linha da matriz
     for i in range(0, len(mat)):
         print(mat[i])
 
@@ -14,27 +14,27 @@ class MyMotifs:
 
     def __init__(self, seqs=[], pwm=[], alphabet=None):
         if seqs:
-            self.size = len(seqs[0])
+            self.size = len(seqs[0]) #comprimento dos motifs
             self.seqs = seqs  # objetos classe MySeq
-            self.alphabet = seqs[0].alfabeto()
-            self.doCounts()
-            self.createPWM()
+            self.alphabet = seqs[0].alfabeto() #alfabeto das seqs
+            self.doCounts() #criar matriz de contagens
+            self.createPWM() #criar matriz de probabilidades
         else:
             self.pwm = pwm
             self.size = len(pwm[0])
             self.alphabet = alphabet
 
     def __len__(self):
-        return self.size
+        return self.size #return do comprimento dos motifs
 
-    def doCounts(self):
+    def doCounts(self): #vai criar a matriz de contagens
         self.counts = createMatZeros(len(self.alphabet), self.size)
         for s in self.seqs:
             for i in range(self.size):
                 lin = self.alphabet.index(s[i])
                 self.counts[lin][i] += 1
 
-    def createPWM(self):
+    def createPWM(self): #vai criar a matriz de probabilidades
         if self.counts == None:
             self.doCounts()
         self.pwm = createMatZeros(len(self.alphabet), self.size)
@@ -42,7 +42,7 @@ class MyMotifs:
             for j in range(self.size):
                 self.pwm[i][j] = float(self.counts[i][j]) / len(self.seqs)
 
-    def consensus(self):
+    def consensus(self): #rai arranjar o consensus a partir da count
         res = ""
         for j in range(self.size):
             maxcol = self.counts[0][j]
@@ -54,7 +54,7 @@ class MyMotifs:
             res += self.alphabet[maxcoli]
         return res
 
-    def maskedConsensus(self):
+    def maskedConsensus(self): #vai encontrar o masked concensus que implica ter mais de 50%
         res = ""
         for j in range(self.size):
             maxcol = self.counts[0][j]
@@ -69,20 +69,20 @@ class MyMotifs:
                 res += "-"
         return res
 
-    def probabSeq(self, seq):
+    def probabSeq(self, seq): #vai calcular a probabilidade de um seq consoante uma PWM
         res = 1.0
         for i in range(self.size):
             lin = self.alphabet.index(seq[i])
             res *= self.pwm[lin][i]
         return res
 
-    def probAllPositions(self, seq):
+    def probAllPositions(self, seq): #
         res = []
-        for _ in range(len(seq)-self.size+1):
-            res.append(self.probabSeq(seq))
+        for _ in range(len(seq)-self.size+1): #vai ver todas as probabilidades de todos os motifs possiveis de uma seq
+            res.append(self.probabSeq(seq[_:_ + self.size])) #//corrigido//
         return res
 
-    def mostProbableSeq(self, seq):
+    def mostProbableSeq(self, seq): #vai procurar numa seq só o motif com mais probabilidade de acontecer
         maximo = -1.0
         maxind = -1
         for k in range(len(seq)-self.size):
