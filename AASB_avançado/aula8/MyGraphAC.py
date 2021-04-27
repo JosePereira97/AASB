@@ -152,7 +152,7 @@ class MyGraph:
                     if p < bp: #vai procorar o caminho mais curto de todas as opções
                         bp = p
                         nxnode = nwnode
-                if nxnode not in vis and nxnode not in l and nxnode != node:  #o no do caminho mais curto é adicionado a lista mais o respetivo p
+                if nxnode not in vis:  #o no do caminho mais curto é adicionado a lista mais o respetivo p
                     l.append((nxnode, [(node, nxnode)], sp + bp))
                     vis.append(node)
             return None

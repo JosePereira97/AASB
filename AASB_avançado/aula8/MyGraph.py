@@ -56,7 +56,7 @@ class MyGraph:
         return list(self.graph[v]) 
              
     def get_predecessors(self, v): #vai buscar todos os nodulos anteriores
-        res = [ ]
+        res = []
         for k in self.graph.keys():
             if v in self.graph[k]:
                 res.append(k)
@@ -88,8 +88,8 @@ class MyGraph:
         l = [v] #criar uma lista
         res = [] #lista de nodulos visitados
         while len(l) > 0: #enquanto a lista de nodulos por visitar for maior que 0 vai continuar
-            node = l.pop(0) #vamos dar popo do primeiro valor
-            if node != v: res.append(node) # e se este for diferente do nodulo original adicionamos a res
+            node = l.pop(0) #vamos dar pop do primeiro valor
+            if node != v: res.append(node) # e se este for diferente do nodulo original adicionamos a res 
             for elem in self.graph[node]: #depois vamos correr os nodulos que estão 
                 if elem not in res and elem not in l and elem != node: #se eles n se encontrarem em res nem em l vamos adiciona los a l
                     l.append(elem)
@@ -119,6 +119,7 @@ class MyGraph:
                 elif elem not in visited:
                     l.append((elem,dist+1))
                     visited.append(elem)
+
         return None
         
     def shortest_path(self, s, d): #vai encontrar o caminho mais curto entre dois nós
