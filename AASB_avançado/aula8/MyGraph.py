@@ -135,7 +135,7 @@ class MyGraph:
                     visited.append(elem)
         return None
         
-    def reachable_with_dist(self, s): #retorna uma lista com todos os nós e as distâncias correspondentes ao nódulo s*
+    def reachable_with_dist(self, s): #retorna uma lista com todos os nós e as distâncias correspondentes ao nó s*
         res = []
         l = [(s,0)]
         while len(l) > 0:
