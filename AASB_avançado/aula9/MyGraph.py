@@ -200,14 +200,14 @@ class MyGraph:
             num_reachable += len(distsk)
         meandist = float(tot) / num_reachable
         n = len(self.get_nodes())
-        return meandist, float(num_reachable)/((n-1)*n)  
+        return meandist, float(num_reachable)/((n-1)*n)  #numero de ligações observadas /pelo numero de ligações esperadas
     
     def closeness_centrality(self, node):
         dist = self.reachable_with_dist(node)
         if len(dist)==0: return 0.0
         s = 0.0
-        for d in dist: s += d[1]
-        return len(dist) / s
+        for d in dist: s += d[1] 
+        return len(dist) / s 
         
     
     def highest_closeness(self, top = 10): 
@@ -291,7 +291,7 @@ class MyGraph:
         return ck
 
 
-    def all_degrees (self, deg_type = "inout"): #vai calcular os graus de entrada e os graus de saida para todos os nodulos
+    def all_degrees(self, deg_type = "inout"): #vai calcular os graus de entrada e os graus de saida para todos os nodulos
         degs = {}
         for v in self.graph.keys():
             if deg_type == "out" or deg_type == "inout":
@@ -334,15 +334,15 @@ class MyGraph:
 
     
     def centralidade_de_Grau_Vertice(self, v): #A centralidade de grau de um vértice é dada pelo seu grau
-        allDegree = all_degrees(self)
+        allDegree = self.all_degrees()
         return(allDegree[v])
 
     def centralidade_de_Grau_Grafo(self, s): #s é o numero de nós mais elevados pretendidos com os seus devidos graus*
-        allDegree = all_degrees(self)
+        allDegree = self.all_degrees()
         Centralidade = {}
         for i in allDegree.keys():
-            if len(list(centralidade.keys())) < s:
-                centralidade[i] = allDegree[i]
+            if len(list(Centralidade.keys())) < s:
+                Centralidade[i] = allDegree[i]
             else:
                 valuebaixo = sorted(list(Centralidade.values()), key = len)
                 if valuebaixo[0] < allDegree[i]:
@@ -354,17 +354,23 @@ class MyGraph:
         return(Centralidade)
 
     def centralidade_de_proximidade_vertice(self, v): #A centralidade de proximidade d eum vértice é dado pelo reciproco da soma das suas distâncias aos demain nós
-        distancia_nos = reachable_with_dist(self, v)
-        total = 0
-        for i, d in distancia_nos:
-            total = total + d
-        proximidade = float(1/total)
-        return(proximidade)
+        total_ligacoes = 0
+        total_ligacoes_com_vertice = 0
+        for i in self.graph.keys(): 
+            for j in self.graph.keys(): 
+                if i != j and i != v and j != v:
+                    caminho_mais_curto = self.shortest_path(i, j)
+                    if caminho_mais_curto is not None:
+                        total_ligacoes = total_ligacoes + 1
+                        if v in caminho_mais_curto: 
+                            total_ligacoes_com_vertice = total_ligacoes_com_vertice + 1
+        proximidade = total_ligacoes_com_vertice / total_ligacoes
+        return proximidade
     
     def centralidade_de_proximidade_vertice(self,s): #s o numero de nos mais elevados pretendidos
         proximidade = {}
         for i in self.graph.keys():
-            score = centralidade_de_proximidade_vertice(self, i)
+            score = self.centralidade_de_proximidade_vertice(i)
             if len(list(proximidade.keys())) < s:
                 proximidade[i] = score
             else:
@@ -378,7 +384,7 @@ class MyGraph:
         return proximidade
 
     def centralidade_closeness_vertice(self,v): #a centralidade de um vertice a outros vertices é calculado por o numero de nós que passam am v -1 a dividir pelas distâncias totais 
-        distancia_nos = reachable_with_dist(self, v)
+        distancia_nos = self.reachable_with_dist(v)
         total = 0
         N = 0
         for i, d in distancia_nos:
@@ -390,7 +396,7 @@ class MyGraph:
     def centralidade_closeness_grafo(self, s): #sendo s o numero de nós
         closennes_grafo = {}
         for i in self.graph.keys():
-            score = centralidade_closeness_vertice(self, i)
+            score = self.centralidade_closeness_vertice(i)
             if len(list(closennes_grafo.keys())) < s:
                 closennes_grafo[i] = score
             else:
