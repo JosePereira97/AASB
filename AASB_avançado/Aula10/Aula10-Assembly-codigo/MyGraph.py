@@ -320,7 +320,7 @@ class MyGraph:
         path = [start]
         while len(path) < len(self.get_nodes()): #enquanto o caminho n tiver corrido os nodes todos
             nxt_index = visited[current] #nxt_index vai ser o numero do current node
-            if len(self.graph[current]) > nxt_index: #se o ramanho de ligações for maior que as ligações no current vértice implica que é impossivel continuar ir para else e dar pop()
+            if len(self.graph[current]) > nxt_index: #se o tamanho de ligações for maior que as ligações no current vértice implica que é impossivel continuar ir para else e dar pop()
                 nxtnode = self.graph[current][nxt_index]
                 visited[current] += 1 #aumentar os visitados para 1 implicando que estamos a fazer para a próxima ligaçãose n funcionar este passa a ser 2 que vamos para a outra possivel
                 if nxtnode not in path: #se o next node n se encotrar no path já, vamos adicionálo e mudar o current node para este
@@ -337,15 +337,15 @@ class MyGraph:
 
     # Eulerian
     
-    def check_balanced_node(self, node):
+    def check_balanced_node(self, node): #vai ver se o node é balanceado se o numero de entradas for igual ao numero de saidas
         return self.in_degree(node) == self.out_degree(node)
         
-    def check_balanced_graph(self):
+    def check_balanced_graph(self): #vai ver se o grafo é balanceado
         for n in self.graph.keys():
             if not self.check_balanced_node(n): return False
         return True
     
-    def check_nearly_balanced_graph(self):
+    def check_nearly_balanced_graph(self): #vai encontrar quase um grapho balanceado sendo que pode ocorrer apensas 2 vértices um comuma diferença de in out de 1 e outro com uma de -1
         res = None, None
         for n in self.graph.keys():
             indeg= self.in_degree(n)
@@ -356,7 +356,7 @@ class MyGraph:
             else: return None, None 
         return res
 
-    def is_connected(self):
+    def is_connected(self): #vai ver se todos os vértices do grafo estão conectados a partir de qualquer vértice
         total = len(self.graph.keys()) - 1
         for v in self.graph.keys():
             reachable_v = self.reachable_bfs(v)
@@ -364,19 +364,50 @@ class MyGraph:
         return True
 
     def eulerian_cycle(self):
+        def is_in_edges_visit(V, edges_visit): #função para ver se ainda existe caminho a partir do vertice V
+            for i in edges_visit:
+                g, c = i
+                if g == V:
+                    return True
+            else:
+                return False
+
+
         if not self.is_connected() or not self.check_balanced_graph(): return None
-        edges_visit = list(self.get_edges())
+        edges_visit = list(self.get_edges()) #array de tupulos com os vértices e aonde este se liga
         res = []
+        Ponto_sem_saida = False #valor boleano para saber se já n existem caminhos
+        tupulo = edges_visit[0]
         while edges_visit:
-            pass  ## completar aqui
-        return res                 
+            edges_visit.pop(tupulo) #eleminar o tupolo da nossa lista
+            if Ponto_sem_saida == True:
+                res.insert(0, tupulo) #ver se este é o começo ou não
+                tupulo = res[len(res)-1]
+                Ponto_sem_saida = False
+            else:
+                res.append(tupulo)
+            
+            for i in edges_visit:
+                Vértice, Caminho = tupulo
+                if is_in_tuple_list(i, Caminho):
+                    tupulo = i
+                    break
+            Vértice, Caminho = tupulo
+            Vértice_inicial, Caminho_inicial = res[0]
+            if Caminho == Vértice_inicial and not is_in_edges_visit(Caminho, edges_visit): #ver se chegou a um ponto sem saida
+                Ponto_sem_saida = True
+        cycle = []   
+        for i in res:
+            Vértice, Caminho = i
+            cycle.append(Vértice)
+        return cycle    
       
-    def eulerian_path(self):
+    def eulerian_path(self): #vamos criar um eurelian path para um grapho quase balanceado
         unb = self.check_nearly_balanced_graph()
         if unb[0] is None or unb[1] is None: return None
-        self.graph[unb[1]].append(unb[0])
+        self.graph[unb[1]].append(unb[0]) #criar um caminho de um vértice ao outro para ficarem balanceados
         cycle = self.eulerian_cycle()
-        for i in range(len(cycle)-1):
+        for i in range(len(cycle)-1): 
             if cycle[i] == unb[1] and cycle[i+1] ==  unb[0]:
                 break
         path = cycle[i+1:] + cycle[1:i+1]
