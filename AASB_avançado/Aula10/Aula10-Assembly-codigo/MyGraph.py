@@ -364,43 +364,42 @@ class MyGraph:
         return True
 
     def eulerian_cycle(self):
-        def is_in_edges_visit(V, edges_visit): #função para ver se ainda existe caminho a partir do vertice V
-            for i in edges_visit:
-                g, c = i
-                if g == V:
-                    return True
-            else:
-                return False
-
-
+        from random import randint
         if not self.is_connected() or not self.check_balanced_graph(): return None
-        edges_visit = list(self.get_edges()) #array de tupulos com os vértices e aonde este se liga
-        res = []
-        Ponto_sem_saida = False #valor boleano para saber se já n existem caminhos
-        tupulo = edges_visit[0]
+        edges_visit = list(self.get_edges()) # Vai recolher as ligações existentes
+        vi = edges_visit[randint(0,len(edges_visit)-1)] # escolher aleatóriamente um caminho
+        res = [vi] #adiciona à lista de resultados o caminho inicial
+        edges_visit.pop(edges_visit.index(vi)) #retira da lista de caminho o selecionado
+        match = False # verificar se existe outros caminhos quando o ciclo terminar
         while edges_visit:
-            edges_visit.pop(tupulo) #eleminar o tupolo da nossa lista
-            if Ponto_sem_saida == True:
-                res.insert(0, tupulo) #ver se este é o começo ou não
-                tupulo = res[len(res)-1]
-                Ponto_sem_saida = False
-            else:
-                res.append(tupulo)
-            
-            for i in edges_visit:
-                Vértice, Caminho = tupulo
-                if is_in_tuple_list(i, Caminho):
-                    tupulo = i
+            for i in edges_visit: # correr todos os caminhos existentes
+                if i[0] == vi[1]: # verificar a ligação do selecionado com outro caminho
+                    vi = i #definir o proximo caminho
+                    res.append(vi) #adicionar o novo caminho à lista
+                    edges_visit.pop(edges_visit.index(vi)) #retirar o novo caminho
                     break
-            Vértice, Caminho = tupulo
-            Vértice_inicial, Caminho_inicial = res[0]
-            if Caminho == Vértice_inicial and not is_in_edges_visit(Caminho, edges_visit): #ver se chegou a um ponto sem saida
-                Ponto_sem_saida = True
-        cycle = []   
-        for i in res:
-            Vértice, Caminho = i
-            cycle.append(Vértice)
-        return cycle    
+            for h in edges_visit:
+                if vi[1] == h[0]: #verificar se um caminho alternativo
+                    match = False # caso exista segue
+                    break
+                else:
+                    match = True
+            if match == True and edges_visit != []: #caso existam caminhos restantes e não ocorra match entre caminhos
+                for j in edges_visit:
+                    for m in res:
+                        if j[0] == m[0]: # encontrar caminhos alternativos a partir de um vertice
+                            pos = res.index(m) #verifcar a posição do caminho onde se encontra esse vertice
+                            newpath = res[pos:] # reorganizar os caminhos começando naquele com caminhos alternativos
+                            newpath.extend(res[:pos]) # adicionar os caminhos que se encontravam antes do caminho selecionado
+                            res = newpath #definir a nossa lista de caminhos por aquela reorganizada
+                            vi = res[len(res)-1] # definir o nosso novo caminho, sendo esse caminho o ultimo da lista
+                            match = False
+                            break
+        path = [] #lista que vai guardar os primeiros vertices de cada caminho
+        for k in res:
+            path.append(k[0]) #adiciona o vertice à lista
+        path.append(res[-1][1]) #adiciona o vertice final que corresponde ao local onde se iniciou o ciclo
+        return path   
       
     def eulerian_path(self): #vamos criar um eurelian path para um grapho quase balanceado
         unb = self.check_nearly_balanced_graph()
