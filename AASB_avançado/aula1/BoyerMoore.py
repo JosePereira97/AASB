@@ -46,8 +46,6 @@ class BoyerMoore:
         
     def search_pattern(self, text):
         res = []
-        print(self.s)
-        print(self.f)
         i = 0  # posição na sequencia
         while i <= len(text) - len(self.pattern):
             j = len(self.pattern) - 1
